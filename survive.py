@@ -17,11 +17,26 @@ class World:
         self.dayNumber = 1
         self.difficulty = 1 # Will ramp up very slowy over time, 1.02..
         self.tasks = {
-            "rest": "Helps you heal, recover energy",
-            "build": "Use materials to improve your base",
-            "scout": "Scouting increases your chances of finding nice things",
-            "loot": "Leave the base and search for useful things"
-        } 
+            "rest": ["Helps you heal, recovers energy", 2], # "taskName:": ['description', timeTaken]
+            "build": ["Use materials to improve your base", 3],
+            "scout": ["Scouting increases your chances of finding nice things", 2],
+            "loot": ["Leave the base and search for useful things", 4]
+        }
+
+
+    def getTimeLeft(self):
+        return self.timeLeft
+    def getDayNight(self):
+        return self.dayNight
+    def getDayNumber(self):
+        return self.dayNumber
+    def getTasks(self):
+        return list(self.tasks.keys()) # only return the task names
+    def getTaskInfo(self, choice):
+        if choice in self.tasks:
+            return self.tasks[choice]
+        else:
+            return 'No such task'
 
 
     def isThereAnAttack(self): # Roll to see if there is an attack 
@@ -55,7 +70,7 @@ class World:
             self.timeLeft -= timeTaken
             return self.timeLeft
 
-    def dayTask(self, choice):
+    def performTask(self, choice):
         # https://stackoverflow.com/questions/60208/replacements-for-switch-statement-in-python
         if choice == 'scout':
             foundSomething = round(random.randrange(0, 100) / 100) # Make a decimal number between 0 ~ 1 and round it to be used as a boolean
@@ -66,6 +81,8 @@ class World:
 
         elif choice == 'nothing':
             return 'nothing'
+
+        
  
 
 
@@ -80,6 +97,9 @@ class Base():
         self.storage = []
         self.luck = 1
 
+    def getBase(self):
+        baseString = ( '' )
+
     def repairBarricade(self, mulitplier):
         barricadeToAdd = round(random.randrange(8, 15) * mulitplier) + self.toolLevel
         self.barricade += barricadeToAdd
@@ -93,7 +113,7 @@ class Base():
 
 class Player:
     def __init__(self):
-        self.name = ''
+        self.name = 'Jim'
         self.health = 100
         self.water = 100
         self.food = 100
@@ -102,55 +122,85 @@ class Player:
         self.workMultiplier = 1
         self.inventoryMax = 8
         self.inventory = []
+        self.tasks = {
+            
+        }
+
+    def getStatus(self):
+        statusString = (self.name + ' the person,\nHealth = ' + str(self.health) + ',\nWater = ' + str(self.water) + ',\nFood = ' + str(self.food) + ',\nEnergy = ' + str(self.energy) + ',\nStatus = ' + str(self.status) + '\nInventory = ' + str(self.inventory) )
+        return statusString
+    
+    # def dontLetOver100(self, stat):
+    #     if self[stat] > 100:
+    #         self[stat] = 100
 
     def setName(self, name):
         self.name = name
-
     
+    def rest(self):
+        self.health += 10
+        self.energy += 15
+
+    def eat(self):
+        self.food += 20
+        self.water += 10
+        self.energy += 5
+
+    def drink(self):
+        self.water += 20
 
 
 
-
-
+# ------------------------------------------------------------------
+# ------------------------------------------------------------------
+# ------------------------------------------------------------------
 
 world = World()
 base = Base()
 player = Player()
 
 
-print('Welcome to Zombie Survival Game')
-player.name = input('Player Name: ')
-print(player.name)
+# print('Welcome to Zombie Survival Game')
+# player.name = input('Player Name: ')
+# print(player.name)
+
+# print('There are zombies and shit outside so making trips outside is always risky')
+# print('You can always use "help" to find out more')
+
+# print("During the day it's safer to stay inside and work on your base")
+# print("During the night it's easier so sneak to locations for supplies, but your base is more likely to be attacked")
+
+# print('You find yourself in an abandoned old house.')
 
 
-print('There are zombies and shit outside so making trips outside is always risky')
-print('You can always use "help" to find out more')
+while base.health > 0:
 
-print('You find yourself in an abandoned old house.')
+    print('\nIt is currently ' + world.getDayNight() + ' on day# ' + str(world.getDayNumber()) )
+    choice = input( "What would you like to do? (\"help\" if you're lost, \"end\" to quit)\n")
+
+    if choice in world.getTasks():
+        info = world.getTaskInfo(choice)
+        print( str(info[0]) + ', will use ' + str(info[1]) + ' hours?') 
+        confirm = input('"n" to cancel, enter to confirm')
+        if confirm == 'n':
+            pass
+        else:
+            world.performTask(choice)
+
+    elif choice == 'status':
+        print(player.getStatus())
+
+    elif choice == 'help':
+        print('Some available tasks are: ' + str(world.getTasks()) + 'status')
+    
+
+    elif choice == 'end':
+        break
+
+
+print('Game Over!')
+print('You made it to day ' + str(world.getDayNumber()) + '!') 
 
 
 
-
-print("During the day it's safer to stay inside and work on your base")
-print("During the night it's easier so sneak to locations for supplies, but your base is more likely to be attacked")
-
-
-
-
-# while base.health > 0:
-
-choice = input('What would you like to do?')
-
-if world.dayNight == 'day':
-    print("It's day")
-
-    if world.timeLeft == 0:
-        print('The day is over')
-
-
-if world.dayNight == 'night':
-    print("it's day")
-
-    if world.timeLeft == 0:
-        print('The night is over')
 
