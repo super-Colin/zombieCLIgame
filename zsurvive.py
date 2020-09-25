@@ -1,6 +1,9 @@
 
 import random
 
+
+
+
 def confirmAction(msg):
     print(msg)
     feedBack = input('"n" to cancel or enter to continue')
@@ -10,7 +13,24 @@ def confirmAction(msg):
         return True
 
 
-class World:
+# https://www.w3schools.com/python/python_inheritance.asp
+class UniversalProperties():
+    def __init__(self):
+        self.tasks = {}
+
+    def getTasks(self):
+        return list(self.tasks.keys())  # only return the task names
+
+    def getTaskInfo(self, choice):
+        if choice in self.tasks:
+            return self.tasks[choice]
+        else:
+            return 'No such task'
+
+    # def performTask(self): # Must add this function to each class
+
+
+class World(UniversalProperties): # Inherit functions from UniversalProperties
     def __init__(self):
         self.dayNight = "day"
         self.timeLeft = 12
@@ -30,14 +50,6 @@ class World:
         return self.dayNight
     def getDayNumber(self):
         return self.dayNumber
-    def getTasks(self):
-        return list(self.tasks.keys()) # only return the task names
-    def getTaskInfo(self, choice):
-        if choice in self.tasks:
-            return self.tasks[choice]
-        else:
-            return 'No such task'
-
 
     def isThereAnAttack(self): # Roll to see if there is an attack 
         if self.dayNight == 'day': # An attack is less likely by zombies 
@@ -45,12 +57,10 @@ class World:
         else:
             return 1
 
-
     def createAttack(self): # Create an amount of damage for an ambush in the night (or day)
         ambientDamage = round(self.dayNumber / 7)
         attackStrength = random.randrange(ambientDamage, ((10 * self.difficulty) + ambientDamage))
         return round(attackStrength)
-
 
     def changeDayNight(self): # Just progress the day to night, night to the next day
         if self.dayNight == "day":
@@ -83,10 +93,7 @@ class World:
             return 'nothing'
 
         
- 
-
-
-class Base():
+class Base(UniversalProperties):
     def __init__(self):
         self.health = 100
         self.barricade = 20
@@ -96,9 +103,11 @@ class Base():
         self.toolLevel = 0
         self.storage = []
         self.luck = 1
+        self.tasks = {}
 
     def getBase(self):
         baseString = ( '' )
+        return baseString
 
     def repairBarricade(self, mulitplier):
         barricadeToAdd = round(random.randrange(8, 15) * mulitplier) + self.toolLevel
@@ -110,8 +119,7 @@ class Base():
         self.barricade -= damageDone
 
 
-
-class Player:
+class Player(UniversalProperties):
     def __init__(self):
         self.name = 'Jim'
         self.health = 100
@@ -123,7 +131,8 @@ class Player:
         self.inventoryMax = 8
         self.inventory = []
         self.tasks = {
-            
+            "rest": ["heal", 2 ],
+            "eat": ["eat food", 0.5]
         }
 
     def getStatus(self):
@@ -191,7 +200,7 @@ while base.health > 0:
         print(player.getStatus())
 
     elif choice == 'help':
-        print('Some available tasks are: ' + str(world.getTasks()) + 'status')
+        print('Some available tasks are: ' + str(world.getTasks()) + str(base.getTasks()) + str(player.getTasks()) )
     
 
     elif choice == 'end':
